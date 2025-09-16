@@ -67,4 +67,21 @@
     - name: Debug result
       when: ec2_key.changed    
       debug:
-        var: result.json.id |int     
+        var: result.json.id      
+    
+    - name: update the nginx job template to use the new credential
+      when: ec2_key.changed    
+      ansible.builtin.uri:
+        url: "{{ controller_host }}/api/controller/v2/job_templates/114/credentials/"
+        method: POST
+        user: "{{ controller_username }}"
+        password: "{{ controller_password }}"
+        force_basic_auth: yes
+        validate_certs: false
+        status_code: 200
+        body_format: json
+        body: 
+          id: "{{ id }}"
+      register: nginx_job_template
+      vars:
+        id: "{{ result.json.id | int }}"
