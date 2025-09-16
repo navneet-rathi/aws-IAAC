@@ -1,6 +1,6 @@
 ---
 collections:
   - name: amazon.aws
-  - name: awx.awx
+  - name: infra.controller_configuration
   - name: community.general
   - name: ansible.posix

@@ -57,7 +57,7 @@
       register: private_key_content
 
     - name: Create Machine Credential
-      awx.awx.credential:
+      infra.controller_configuration.credential:
         controller_host: "{{ controller_host }}"
         controller_username: "{{ controller_username }}"
         controller_password: "{{ controller_password }}"
