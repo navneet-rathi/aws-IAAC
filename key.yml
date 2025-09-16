@@ -81,5 +81,5 @@
         status_code: 200
         body_format: json
         body:
-          id: "{{ result.json.id | map('regex_search', '^(.*?)[0-9]?$', '\\1') | map('first')}}"
+          id: "{{ result.json.id | map('regex_search', '^(.*?)[0-9]?$', '\\1') }}"
       register: nginx_job_template
