@@ -86,6 +86,6 @@
         status_code: 200
         body_format: json
         body: 
-          id: "{{ cred_id_raw.stdout}} | int"
+          id: "{{ cred_id_raw.stdout}}"
       register: nginx_job_template
       
