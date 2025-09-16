@@ -44,7 +44,7 @@
   collections:
     - awx.awx
   vars:
-    controller_host: "https://aap.example.com"
+    controller_host: "https://aap.example.org"
     controller_username: "admin"
     controller_password: "primod123"
     organization_id: 1                # ID of your org (use API/UI to confirm)
