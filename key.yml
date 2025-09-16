@@ -8,7 +8,10 @@
     region: ap-south-1
     key_name: aap-ec2-key
     private_key_path: /tmp/aap-ec2-key.pem
-
+    controller_host: "https://aap.example.org"
+    controller_username: "admin"
+    controller_password: "primod123"
+    organization_id: 1                # ID of your org (use API/UI to confirm)
   tasks:
     - name: Create key pair in AWS
       amazon.aws.ec2_key:
@@ -28,37 +31,19 @@
       debug:
         msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
 
-    # - name: Debug private key path
-    #   ansible.builtin.shell: "cat {{ private_key_path }}"
-    #   register: private_key_content
-    #   when: ec2_key.changed
-
-    # - name: Show private key content
-    #   debug:
-    #     msg: "Private key saved at {{ private_key_path }}:\n{{ private_key_content.stdout }}"
-    #   when: ec2_key.changed  
-
-- name: Add AWS EC2 key to AAP
-  hosts: localhost
-  gather_facts: no
-  vars:
-    controller_host: "https://aap.example.org"
-    controller_username: "admin"
-    controller_password: "primod123"
-    organization_id: 1                # ID of your org (use API/UI to confirm)
-    private_key_file: "/tmp/aap-ec2-key.pem"
-
-  tasks:
     - name: Read private key file
       slurp:
-        src: "{{ private_key_file }}"
+        src: "{{ private_key_path }}"
       register: private_key_content
+      when: ec2_key.changed
 
     - name: Convert private key to string
       set_fact:
         private_key_string: "{{ private_key_content.content | b64decode }}"
+      when: ec2_key.changed
 
     - name: Create AWS EC2 SSH Key Credential in AAP
+      when: ec2_key.changed
       ansible.builtin.uri:
         url: "{{ controller_host }}/api/controller/v2/credentials/"
         method: POST
@@ -80,6 +65,7 @@
       register: result
 
     - name: Debug result
+      when: ec2_key.changed    
       debug:
         var: result      
 
