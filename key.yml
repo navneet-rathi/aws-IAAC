@@ -83,7 +83,5 @@
         body:
           name: "02-aws-nginx"
           description: "Launch Nginx on AWS EC2 instance"
-          credentials : [ "{{ result.json.id }}" ]
-          playbook: "nginx-aws.yml"
           credential: "{{ result.json.id }}"
       register: nginx_job_template
