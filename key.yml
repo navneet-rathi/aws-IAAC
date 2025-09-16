@@ -58,7 +58,7 @@
       set_fact:
         private_key_string: "{{ private_key_content.content | b64decode }}"
 
-    - name: Get activity stream logs
+    - name: Create AWS EC2 SSH Key Credential in AAP
       ansible.builtin.uri:
         url: "{{ controller_host }}/api/controller/v2/credentials/"
         method: POST
@@ -66,6 +66,7 @@
         password: "{{ controller_password }}"
         force_basic_auth: yes
         validate_certs: false
+        status_code: 201
         body_format: json
         body:
           name: "AWS EC2 SSH Key"
@@ -76,4 +77,9 @@
           inputs:
             username: ec2-user
             ssh_key_data: "{{ private_key_string }}"
+      register: result
+
+    - name: Debug result
+      debug:
+        var: result      
 
