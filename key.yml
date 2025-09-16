@@ -71,7 +71,8 @@
 
     - name: shell
       ansible.builtin.shell: "chmod 777 clean.sh && ./clean.sh {{ result.json.id }}"
-      when: ec2_key.changed 
+      when: ec2_key.changed
+      register: cred_id_raw 
          
     - name: update the nginx job template to use the new credential
       when: ec2_key.changed    
@@ -85,6 +86,6 @@
         status_code: 200
         body_format: json
         body: 
-          id: "{{ cred_id }}"
+          id: "{{ cred_id_raw.stdout }}"
       register: nginx_job_template
       
