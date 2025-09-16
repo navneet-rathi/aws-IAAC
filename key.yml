@@ -27,7 +27,7 @@
 
     - name: Debug public key
       debug:
-        msg: "Public key registered in AWS: {{ ec2_key.key.public_key }}"
+        msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
 
     - name: Debug private key path
       ansible.builtin.shell: "cat {{ private_key_path }}"
