@@ -69,9 +69,10 @@
       debug:
         var: result.json.id   
 
-    - set_fact:
-        cred_id: "{{ result.json.id  | int }}"
+    - name: shell
+      ansible.builtin.shell: "str={{result.json.id}} && cleaned=${str//\'/} && echo $cleaned"
         
+
       when: ec2_key.changed    
     - name: update the nginx job template to use the new credential
       when: ec2_key.changed    
