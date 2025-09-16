@@ -1,0 +1,131 @@
+---
+- name: Provision AWS VPC, EC2, and ALB
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    region: ap-south-1
+    vpc_cidr: "10.0.0.0/16"
+    subnet_cidr: "10.0.1.0/24"
+    keypair_name: my-key
+    ec2_instance_type: t3.micro
+    ami_id: ami-0c1a7f89451184c8b   # Replace with valid AMI in your region
+    tag_project: "AWX-Black-Env"
+
+  tasks:
+    - name: Create VPC
+      amazon.aws.ec2_vpc_net:
+        name: "{{ tag_project }}-vpc"
+        cidr_block: "{{ vpc_cidr }}"
+        region: "{{ region }}"
+        tags:
+          Project: "{{ tag_project }}"
+      register: vpc
+
+    - name: Create Subnet
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        cidr: "{{ subnet_cidr }}"
+        az: "{{ region }}a"
+        map_public: true
+        tags:
+          Project: "{{ tag_project }}"
+      register: subnet
+
+    - name: Create Internet Gateway
+      amazon.aws.ec2_vpc_igw:
+        vpc_id: "{{ vpc.vpc.id }}"
+        state: present
+        tags:
+          Project: "{{ tag_project }}"
+      register: igw
+
+    - name: Create Route Table
+      amazon.aws.ec2_vpc_route_table:
+        vpc_id: "{{ vpc.vpc.id }}"
+        subnets: [ "{{ subnet.subnet.id }}" ]
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ igw.gateway_id }}"
+        tags:
+          Project: "{{ tag_project }}"
+      register: rtb
+
+    - name: Create Security Group for EC2 and ALB
+      amazon.aws.ec2_security_group:
+        name: "{{ tag_project }}-sg"
+        description: "SG for EC2 + ALB"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            ports: [22]
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            ports: [80, 443]
+            cidr_ip: 0.0.0.0/0
+        tags:
+          Project: "{{ tag_project }}"
+      register: sg
+
+    - name: Launch EC2 instance
+      amazon.aws.ec2_instance:
+        name: "{{ tag_project }}-ec2"
+        key_name: "{{ keypair_name }}"
+        instance_type: "{{ ec2_instance_type }}"
+        image_id: "{{ ami_id }}"
+        vpc_subnet_id: "{{ subnet.subnet.id }}"
+        security_group: "{{ sg.group_id }}"
+        region: "{{ region }}"
+        network:
+          assign_public_ip: true
+        tags:
+          Project: "{{ tag_project }}"
+      register: ec2
+
+    - name: Create Target Group for ALB
+      amazon.aws.elb_target_group:
+        name: "{{ tag_project }}-tg"
+        protocol: HTTP
+        port: 80
+        vpc_id: "{{ vpc.vpc.id }}"
+        health_check_protocol: HTTP
+        health_check_path: /
+        region: "{{ region }}"
+        state: present
+      register: tg
+
+    - name: Register EC2 instance with Target Group
+      amazon.aws.elb_target:
+        target_group_arn: "{{ tg.target_group_arn }}"
+        targets:
+          - id: "{{ ec2.instances[0].id }}"
+        region: "{{ region }}"
+
+    - name: Create Application Load Balancer
+      amazon.aws.elb_application_lb:
+        name: "{{ tag_project }}-alb"
+        subnets: [ "{{ subnet.subnet.id }}" ]
+        security_groups: [ "{{ sg.group_id }}" ]
+        scheme: internet-facing
+        region: "{{ region }}"
+        state: present
+        tags:
+          Project: "{{ tag_project }}"
+      register: alb
+
+    - name: Create ALB Listener
+      amazon.aws.elb_application_lb_listener:
+        load_balancer_arn: "{{ alb.load_balancer_arn }}"
+        port: 80
+        protocol: HTTP
+        default_actions:
+          - type: forward
+            target_group_arn: "{{ tg.target_group_arn }}"
+        region: "{{ region }}"
+      register: listener
+
+    - name: Output ALB DNS Name
+      debug:
+        msg: "ALB is available at: http://{{ alb.dns_name }}"
