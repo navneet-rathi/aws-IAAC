@@ -29,12 +29,47 @@
       debug:
         msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
 
-    - name: Debug private key path
-      ansible.builtin.shell: "cat {{ private_key_path }}"
-      register: private_key_content
-      when: ec2_key.changed
+    # - name: Debug private key path
+    #   ansible.builtin.shell: "cat {{ private_key_path }}"
+    #   register: private_key_content
+    #   when: ec2_key.changed
 
-    - name: Show private key content
-      debug:
-        msg: "Private key saved at {{ private_key_path }}:\n{{ private_key_content.stdout }}"
-      when: ec2_key.changed  
+    # - name: Show private key content
+    #   debug:
+    #     msg: "Private key saved at {{ private_key_path }}:\n{{ private_key_content.stdout }}"
+    #   when: ec2_key.changed  
+
+- name: Add AWS EC2 key to AAP
+  hosts: localhost
+  gather_facts: no
+  collections:
+    - awx.awx
+  vars:
+    controller_host: "https://aap.example.com"
+    controller_username: "admin"
+    controller_password: "primod123"
+    organization_id: 1                # ID of your org (use API/UI to confirm)
+    private_key_file: "/tmp/aap-ec2-key.pem"
+
+  tasks:
+    - name: Read private key file
+      slurp:
+        src: "{{ private_key_file }}"
+      register: private_key_content
+
+    - name: Create Machine Credential
+      awx.awx.controller_api:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_password: "{{ controller_password }}"
+        validate_certs: false
+        endpoint: "/api/controller/v2/credentials/"
+        method: POST
+        data:
+          name: "AWS EC2 SSH Key"
+          description: "SSH private key for AWS EC2 access"
+          organization: "{{ organization_id }}"
+          credential_type: 1   # 1 = Machine credential type
+          inputs:
+            username: ec2-user
+            ssh_key_data: "{{ private_key_content['content'] | b64decode }}"
