@@ -56,20 +56,22 @@
         src: "{{ private_key_file }}"
       register: private_key_content
 
-    - name: Create Machine Credential
-      infra.controller_configuration.credential:
-        controller_host: "{{ controller_host }}"
-        controller_username: "{{ controller_username }}"
-        controller_password: "{{ controller_password }}"
+
+    - name: Get activity stream logs
+      ansible.builtin.uri:
+        url: "{{ controller_host }}/api/controller//v2/credentials/"
+        method: POST
+        user: "{{ controller_username }}"
+        password: "{{ controller_password }}"
+        force_basic_auth: yes
         validate_certs: false
-        #endpoint: "/api/controller/v2/credentials/"
-        #method: POST
-        #data:
-        name: "AWS EC2 SSH Key"
-        description: "SSH private key for AWS EC2 access"
-        organization: "{{ organization_id }}"
-        credential_type: Machine
-        state: present   # 1 = Machine credential type
-        inputs:
-          username: ec2-user
-          ssh_key_data: "{{ private_key_content['content'] | b64decode }}"
+        data:
+          name: "AWS EC2 SSH Key"
+          description: "SSH private key for AWS EC2 access"
+          organization: "{{ organization_id }}"
+          credential_type: Machine
+          state: present   # 1 = Machine credential type
+          inputs:
+            username: ec2-user
+            ssh_key_data: "{{ private_key_content['content'] | b64decode }}"
+
