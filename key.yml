@@ -41,8 +41,6 @@
 - name: Add AWS EC2 key to AAP
   hosts: localhost
   gather_facts: no
-  collections:
-    - awx.awx
   vars:
     controller_host: "https://aap.example.org"
     controller_username: "admin"
