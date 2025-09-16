@@ -70,7 +70,7 @@
         var: result.json.id   
 
     - ansible.builtin.set_fact:
-        cred_id: "{{ result.json.id }}| int"
+        cred_id: "{{ result.json.id }}"
       when: ec2_key.changed
          
     - name: update the nginx job template to use the new credential
@@ -85,6 +85,6 @@
         status_code: 200
         body_format: json
         body: 
-          id: "{{ cred_id }}" 
+          id: cred_id 
       register: nginx_job_template
       
