@@ -63,7 +63,7 @@
         password: "{{ controller_password }}"
         force_basic_auth: yes
         validate_certs: false
-        data:
+        body:
           name: "AWS EC2 SSH Key"
           description: "SSH private key for AWS EC2 access"
           organization: "{{ organization_id }}"
