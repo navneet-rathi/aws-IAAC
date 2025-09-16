@@ -72,8 +72,8 @@
     - name: update the nginx job template to use the new credential
       when: ec2_key.changed    
       ansible.builtin.uri:
-        url: "{{ controller_host }}/api/controller/v2/job_templates/114/"
-        method: PATCH
+        url: "{{ controller_host }}/api/controller/v2/job_templates/114/credentials/"
+        method: POST
         user: "{{ controller_username }}"
         password: "{{ controller_password }}"
         force_basic_auth: yes
@@ -81,7 +81,5 @@
         status_code: 200
         body_format: json
         body:
-          name: "02-aws-nginx"
-          description: "Launch Nginx on AWS EC2 instance"
-          credential: "{{ result.json.id }}"
+          id "{{ result.json.id }}"
       register: nginx_job_template
