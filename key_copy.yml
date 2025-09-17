@@ -73,7 +73,7 @@
     #     cred_id: "{{ result.json.id }}"
     #   when: ec2_key.changed
     - copy: 
-        content: "{{ result.json.id }}"
+        content: "{{ result.json.id |int}}"
         dest: /tmp/cred_id.txt
 
     - name: update the nginx job template to use the new credential
