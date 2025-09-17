@@ -94,6 +94,6 @@
         status_code: 200
         body_format: json
         body:  
-          id: 50
+          id: 54
       register: nginx_job_template
       
