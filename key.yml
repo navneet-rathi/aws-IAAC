@@ -43,7 +43,7 @@
       when: ec2_key.changed
 
     - name: Create AWS EC2 SSH Key Credential in AAP
-#      when: ec2_key.changed
+      when: ec2_key.changed
       ansible.builtin.uri:
         url: "{{ controller_host }}/api/controller/v2/credentials/"
         method: POST
