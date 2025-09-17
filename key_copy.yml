@@ -27,9 +27,9 @@
         mode: '0600'
 #      when: ec2_key.changed
 
-    - name: Debug public key
-      debug:
-        msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
+    # - name: Debug public key
+    #   debug:
+    #     msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
 
     - name: Read private key file
       slurp:
