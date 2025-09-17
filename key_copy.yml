@@ -93,6 +93,7 @@
         validate_certs: false
         status_code: 200
         body_format: json
-        body:  "{{ lookup('file', '/tmp/cred_id.txt') }}"
+        body:  
+          id: 50
       register: nginx_job_template
       
