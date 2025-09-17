@@ -72,7 +72,10 @@
     # - ansible.builtin.set_fact:
     #     cred_id: "{{ result.json.id }}"
     #   when: ec2_key.changed
-         
+    - copy: 
+        content: "{{ result.json.id }}"
+        dest: /tmp/cred_id.txt
+
     - name: update the nginx job template to use the new credential
       # when: ec2_key.changed    
       ansible.builtin.uri:
@@ -85,6 +88,6 @@
         status_code: 200
         body_format: json
         body: 
-          id: {{ result.json.id | int }} 
+          id: "{{ lookup('file', '/tmp/cred_id.txt') | int }}"
       register: nginx_job_template
       
