@@ -64,23 +64,23 @@
             ssh_key_data: "{{ private_key_string }}"
       register: result
 
-    # - name: Debug result
-    #   when: ec2_key.changed    
-    #   debug:
-    #     var: result.json.id   
+    # # - name: Debug result
+    # #   when: ec2_key.changed    
+    # #   debug:
+    # #     var: result.json.id   
 
-    # - ansible.builtin.set_fact:
-    #     cred_id: "{{ result.json.id }}"
-    #   when: ec2_key.changed
-    - copy: 
-        content: "id : {{ result.json.id |int}}"
-        dest: "/tmp/cred_id.txt"
+    # # - ansible.builtin.set_fact:
+    # #     cred_id: "{{ result.json.id }}"
+    # #   when: ec2_key.changed
+    # - copy: 
+    #     content: "id : {{ result.json.id |int}}"
+    #     dest: "/tmp/cred_id.txt"
     
-    - shell: cat /tmp/cred_id.txt
-      register: cat_cred_id
+    # - shell: cat /tmp/cred_id.txt
+    #   register: cat_cred_id
     
-    - debug:
-        var: cat_cred_id.stdout    
+    # - debug:
+    #     var: cat_cred_id.stdout    
 
     # - name: update the nginx job template to use the new credential
     #   # when: ec2_key.changed    
