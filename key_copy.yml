@@ -74,7 +74,7 @@
     #   when: ec2_key.changed
     - copy: 
         content: "id : {{ result.json.id |int}}"
-        dest: /tmp/cred_id.txt"
+        dest: "/tmp/cred_id.txt"
     
     - shell: cat /tmp/cred_id.txt
       register: cat_cred_id
