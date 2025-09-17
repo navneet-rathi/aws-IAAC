@@ -85,6 +85,6 @@
         status_code: 200
         body_format: json
         body: 
-          id: {{ result.json.id |int }} 
+          id: {{ result.json.id | int }} 
       register: nginx_job_template
       
