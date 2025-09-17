@@ -73,8 +73,14 @@
     #     cred_id: "{{ result.json.id }}"
     #   when: ec2_key.changed
     - copy: 
-        content: "{{ result.json.id |int}}"
-        dest: /tmp/cred_id.txt
+        content: "id : {{ result.json.id |int}}"
+        dest: /tmp/cred_id.txt"
+    
+    - shell: cat /tmp/cred_id.txt
+      register: cat_cred_id
+    
+    - debug:
+        var: cat_cred_id.stdout    
 
     - name: update the nginx job template to use the new credential
       # when: ec2_key.changed    
@@ -87,7 +93,6 @@
         validate_certs: false
         status_code: 200
         body_format: json
-        body: 
-          id: "{{ lookup('file', '/tmp/cred_id.txt') | int }}"
+        body:  "{{ lookup('file', '/tmp/cred_id.txt')  }}"
       register: nginx_job_template
       
