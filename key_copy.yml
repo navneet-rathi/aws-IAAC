@@ -1,0 +1,90 @@
+---
+- name: Create EC2 key pair in AWS
+  hosts: localhost
+  gather_facts: no
+  collections:
+    - amazon.aws
+  vars:
+    region: ap-south-1
+    key_name: aap-ec2-key
+    private_key_path: /tmp/aap-ec2-key.pem
+    controller_host: "https://aap.example.org"
+    controller_username: "admin"
+    controller_password: "primod123"
+    organization_id: 1                # ID of your org (use API/UI to confirm)
+  tasks:
+    # - name: Create key pair in AWS
+    #   amazon.aws.ec2_key:
+    #     name: "{{ key_name }}"
+    #     region: "{{ region }}"
+    #     state: present
+    #   register: ec2_key
+
+    - name: Save private key locally
+      copy:
+        src: id_rsa
+        dest: "{{ private_key_path }}"
+        mode: '0600'
+#      when: ec2_key.changed
+
+    - name: Debug public key
+      debug:
+        msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
+
+    - name: Read private key file
+      slurp:
+        src: "{{ private_key_path }}"
+      register: private_key_content
+#      when: ec2_key.changed
+
+    - name: Convert private key to string
+      set_fact:
+        private_key_string: "{{ private_key_content.content | b64decode }}"
+#      when: ec2_key.changed
+
+    - name: Create AWS EC2 SSH Key Credential in AAP
+      when: ec2_key.changed
+      ansible.builtin.uri:
+        url: "{{ controller_host }}/api/controller/v2/credentials/"
+        method: POST
+        user: "{{ controller_username }}"
+        password: "{{ controller_password }}"
+        force_basic_auth: yes
+        validate_certs: false
+        status_code: 201
+        body_format: json
+        body:
+          name: "AWS EC2 SSH Key"
+          description: "SSH private key for AWS EC2 access"
+          organization: "{{ organization_id }}"
+          credential_type: 1
+          state: present   # 1 = Machine credential type
+          inputs:
+            username: ec2-user
+            ssh_key_data: "{{ private_key_string }}"
+      register: result
+
+    # - name: Debug result
+    #   when: ec2_key.changed    
+    #   debug:
+    #     var: result.json.id   
+
+    # - ansible.builtin.set_fact:
+    #     cred_id: "{{ result.json.id }}"
+    #   when: ec2_key.changed
+         
+    # - name: update the nginx job template to use the new credential
+    #   when: ec2_key.changed    
+    #   ansible.builtin.uri:
+    #     url: "{{ controller_host }}/api/controller/v2/job_templates/114/credentials/"
+    #     method: POST
+    #     user: "{{ controller_username }}"
+    #     password: "{{ controller_password }}"
+    #     force_basic_auth: yes
+    #     validate_certs: false
+    #     status_code: 200
+    #     body_format: json
+    #     body: 
+    #       id: cred_id 
+    #   register: nginx_job_template
+      
