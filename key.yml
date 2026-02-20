@@ -64,7 +64,8 @@
             username: ec2-user
             ssh_key_data: "{{ private_key_string }}"
       register: result
-
+      ignore_errors: yes
+      
     - name: Just for debugging - and testing
       ansible.builtin.debug:
         var: private_key_string
