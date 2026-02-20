@@ -46,7 +46,7 @@
     - name: Create AWS EC2 SSH Key Credential in AAP
       when: ec2_key.changed
       ansible.builtin.uri:
-        url: "{{ controller_host }}/api/controller/v2/job_templates/114/credentials/"
+        url: "{{ controller_host }}/api/controller/v2/job_templates/99/credentials/"
         method: POST
         user: "{{ controller_username }}"
         password: "{{ controller_password }}"
@@ -65,7 +65,7 @@
             ssh_key_data: "{{ private_key_string }}"
       register: result
       ignore_errors: yes
-      
+
     - name: Just for debugging - and testing
       ansible.builtin.debug:
         var: private_key_string
