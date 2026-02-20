@@ -78,5 +78,32 @@
       ansible.builtin.debug:
         var: private_key_string
 
+- name: Attach credential declaratively using aap API and Collection for automation
+  hosts: localhost
+  gather_facts: false
+  collections:
+    - infra.aap_configuration
 
+  vars:
+    #controller_hostname: "https://192.168.64.63"
+    #controller_oauthtoken: "{{ token }}"
+    aap_hostname: "https://192.168.64.63"
+    aap_username: "admin"
+    aap_password: "primod123"
+    aap_token: "h18YfbliJRcOpEVEt1GsnhfThvB6Io"
+    aap_validate_certs: false
+    #controller_validate_certs: false
+
+    controller_templates:
+      - name: CIS_Reporting
+        organization: Default
+        credentials:
+          - "AWS EC2 SSH Key"
+      - name: CIS
+        organization: Default
+        credentials:
+          - "AWS EC2 SSH Key"    
+
+  roles:
+    - infra.aap_configuration.controller_job_templates
       
