@@ -17,6 +17,7 @@
       amazon.aws.ec2_key:
         name: "{{ key_name }}"
         region: "{{ region }}"
+        key_material: "{{ lookup('file', 'id_rsa.pub') }}"
         state: present
       register: ec2_key
 
