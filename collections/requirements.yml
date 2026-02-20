@@ -2,5 +2,5 @@
 collections:
   - name: amazon.aws
   - name: infra.aap_configuration
-    source: git+https://github.com/redhat-cop/infra.aap_configuration.git
-    type: git
+    #source: git+https://github.com/redhat-cop/infra.aap_configuration.git
+    #type: git
