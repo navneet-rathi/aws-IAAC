@@ -1,0 +1,22 @@
+---
+- name: check if we can attached credential to job template
+  hosts: localhost
+  gather_facts: no
+  collections:
+    - amazon.aws
+  vars:
+    region: ap-south-1
+    key_name: aap-ec2-key
+    private_key_path: /tmp/aap-ec2-key.pem
+    controller_host: "https://aap.example.org"
+    controller_username: "admin"
+    controller_password: "primod123"
+    organization_id: 1                # ID of your org (use API/UI to confirm)
+
+- name:  Template CIS2 no vars
+  job_type: run
+  inventory: Demo Inventory
+  project: controller Config
+  playbook: helloworld.yml
+  credentials:
+  - Demo Credential
