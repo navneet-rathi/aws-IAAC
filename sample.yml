@@ -25,7 +25,7 @@
     aap_hostname: "https://192.168.64.63"
     aap_username: "admin"
     aap_password: "password"
-
+    aap_validate_certs: false
     controller_validate_certs: false
 
     controller_templates:
