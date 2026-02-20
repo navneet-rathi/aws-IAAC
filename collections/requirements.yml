@@ -1,6 +1,6 @@
 ---
 collections:
-  - name: amazon.aws
+  #- name: amazon.aws
   - name: infra.aap_configuration
     source: infra-aap_configuration-3.3.0.tar.gz
     type: file
