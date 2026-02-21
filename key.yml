@@ -102,8 +102,12 @@
       - name: CIS
         organization: Default
         credentials:
-          - "AWS EC2 SSH Key"    
+          - "AWS EC2 SSH Key" 
 
+      - name: AWS_Infra_Hardning   
+        organization: Default
+        credentials:
+          - "AWS EC2 SSH Key" 
   roles:
     - infra.aap_configuration.controller_job_templates
       
