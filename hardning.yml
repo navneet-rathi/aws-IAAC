@@ -1,0 +1,100 @@
+---
+- name: Apply CIS Password Policy - RHEL 8/9
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Ensure authselect profile is selected with faillock
+      command: authselect select sssd with-faillock --force
+      args:
+        creates: /etc/authselect/authselect.conf
+
+    - name: Enable authselect changes
+      command: authselect apply-changes
+
+    # -----------------------------
+    # CIS Password Quality
+    # -----------------------------
+
+    - name: Configure pwquality.conf
+      lineinfile:
+        path: /etc/security/pwquality.conf
+        regexp: '^{{ item.key }}'
+        line: '{{ item.key }} = {{ item.value }}'
+        create: yes
+      loop:
+        - { key: 'minlen', value: '14' }
+        - { key: 'minclass', value: '4' }
+        - { key: 'dcredit', value: '-1' }
+        - { key: 'ucredit', value: '-1' }
+        - { key: 'lcredit', value: '-1' }
+        - { key: 'ocredit', value: '-1' }
+        - { key: 'retry', value: '3' }
+
+    # -----------------------------
+    # Password Aging
+    # -----------------------------
+
+    - name: Configure password aging in login.defs
+      lineinfile:
+        path: /etc/login.defs
+        regexp: '^{{ item.key }}'
+        line: '{{ item.key }}   {{ item.value }}'
+      loop:
+        - { key: 'PASS_MAX_DAYS', value: '365' }
+        - { key: 'PASS_MIN_DAYS', value: '7' }
+        - { key: 'PASS_WARN_AGE', value: '7' }
+
+    # -----------------------------
+    # Account Lockout
+    # -----------------------------
+
+    - name: Configure faillock settings
+      lineinfile:
+        path: /etc/security/faillock.conf
+        regexp: '^{{ item.key }}'
+        line: '{{ item.key }} = {{ item.value }}'
+        create: yes
+      loop:
+        - { key: 'deny', value: '5' }
+        - { key: 'unlock_time', value: '900' }
+
+    # -----------------------------
+    # Apply aging to existing users
+    # -----------------------------
+
+    - name: Set max password age for existing users
+      command: chage --maxdays 365 {{ item }}
+      loop: "{{ ansible_facts.getent_passwd.keys() | list }}"
+      when: item not in ['root', 'nobody']
+      ignore_errors: yes
+
+- name: Configure SSH Banner
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Create SSH banner file
+      copy:
+        dest: /etc/issue.net
+        content: |
+          ************************************************************
+          WARNING: Authorized Use Only
+          This system is monitored.
+          Unauthorized access is prohibited.
+          ************************************************************
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Ensure sshd_config has Banner configured
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Banner'
+        line: 'Banner /etc/issue.net'
+        state: present
+
+    - name: Restart sshd
+      service:
+        name: sshd
+        state: restarted      
