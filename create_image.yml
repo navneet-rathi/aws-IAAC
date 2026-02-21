@@ -1,0 +1,22 @@
+---
+- name: Create EC2 Image
+  hosts: localhost
+  gather_facts: false
+  vars:
+    tag_project: "RHEL_ec2_image_21_02"
+    region: "ap-south-1"
+    instance_id: "{{ec2_data }}"
+  tasks:
+    - name: Create an AMI from the EC2 instance
+      amazon.aws.ec2_ami:
+        instance_id: "{{ instance_id }}"
+        name: "{{ tag_project }}-ami"
+        region: "{{ region }}"
+        wait: true
+        tags:
+          Project: "{{ tag_project }}"
+      register: ami
+
+    - name: Output the created AMI ID
+      debug:
+        msg: "Created AMI ID: {{ ami.image_id }}"  

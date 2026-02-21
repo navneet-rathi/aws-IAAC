@@ -86,3 +86,8 @@
         tags:
           Project: "{{ tag_project }}"
       register: ec2
+
+    - name: Set a variable to be used in a subsequent workflow job
+      ansible.builtin.set_stats:
+        data:
+          ec2_data: "{{ ec2.instances[0].id }}"      
