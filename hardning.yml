@@ -4,13 +4,13 @@
   become: yes
   tasks:
 
-    # - name: Ensure authselect profile is selected with faillock
-    #   command: authselect select sssd with-faillock --force
-    #   args:
-    #     creates: /etc/authselect/authselect.conf
+    - name: Ensure authselect profile is selected with faillock
+      command: authselect select sssd with-faillock --force
+      args:
+        creates: /etc/authselect/authselect.conf
 
-    # - name: Enable authselect changes
-    #   command: authselect apply-changes
+    - name: Enable authselect changes
+      command: authselect apply-changes
 
     # -----------------------------
     # CIS Password Quality
