@@ -50,29 +50,29 @@
       set_fact:
         private_key_string: "{{ private_key_content.content | b64decode }}"
       when: ec2_key.changed
-
-    - name: Create AWS EC2 SSH Key Credential in AAP
-      when: ec2_key.changed
-      ansible.builtin.uri:
-        url: "{{ controller_host }}/api/controller/v2/job_templates/99/credentials/"
-        method: POST
-        user: "{{ controller_username }}"
-        password: "{{ controller_password }}"
-        force_basic_auth: yes
-        validate_certs: false
-        status_code: 201
-        body_format: json
-        body:
-          name: "AWS EC2 SSH Key"
-          description: "SSH private key for AWS EC2 access"
-          organization: "{{ organization_id }}"
-          credential_type: 1
-          state: present   # 1 = Machine credential type
-          inputs:
-            username: ec2-user
-            ssh_key_data: "{{ private_key_string }}"
-      register: result
-      ignore_errors: yes
+    ## Removed the API call to create credential in AAP, as we will be using the collection for that. Keeping it here for reference.
+    # - name: Create AWS EC2 SSH Key Credential in AAP
+    #   when: ec2_key.changed
+    #   ansible.builtin.uri:
+    #     url: "{{ controller_host }}/api/controller/v2/job_templates/99/credentials/"
+    #     method: POST
+    #     user: "{{ controller_username }}"
+    #     password: "{{ controller_password }}"
+    #     force_basic_auth: yes
+    #     validate_certs: false
+    #     status_code: 201
+    #     body_format: json
+    #     body:
+    #       name: "AWS EC2 SSH Key"
+    #       description: "SSH private key for AWS EC2 access"
+    #       organization: "{{ organization_id }}"
+    #       credential_type: 1
+    #       state: present   # 1 = Machine credential type
+    #       inputs:
+    #         username: ec2-user
+    #         ssh_key_data: "{{ private_key_string }}"
+    #   register: result
+    #   ignore_errors: yes
 
     - name: Just for debugging - and testing
       ansible.builtin.debug:
@@ -93,12 +93,21 @@
     aap_token: "h18YfbliJRcOpEVEt1GsnhfThvB6Io"
     aap_validate_certs: false
     #controller_validate_certs: false
+    controller_credentials:
+      - name: AWS EC2 SSH Key
+        description: Credentials for AWS EC2 SSH Key
+        organization: Default
+        credential_type: "Machine"
+        inputs:
+          username: ec2-user
+          ssh_key_data: "{{ private_key_string }}"
 
     controller_templates:
       - name: CIS_Reporting
         organization: Default
         credentials:
           - "AWS EC2 SSH Key"
+
       - name: CIS
         organization: Default
         credentials:
@@ -109,5 +118,6 @@
         credentials:
           - "AWS EC2 SSH Key" 
   roles:
+    - {role: infra.aap_configuration.controller_credentials, when: controller_credentials is defined}
     - infra.aap_configuration.controller_job_templates
       
