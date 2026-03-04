@@ -29,27 +29,27 @@
         state: present
       register: ec2_key
 
-    - name: Save private key locally
-      ansible.builtin.copy:
-        content: "{{ ec2_key.key.private_key }}"
-        dest: "{{ private_key_path }}"
-        mode: '0600'
-      when: ec2_key.changed
+    # - name: Save private key locally
+    #   ansible.builtin.copy:
+    #     content: "{{ ec2_key.key.private_key }}"
+    #     dest: "{{ private_key_path }}"
+    #     mode: '0600'
+    #   when: ec2_key.changed
 
-    - name: Debug public key
-      ansible.builtin.debug:
-        msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
+    # - name: Debug public key
+    #   ansible.builtin.debug:
+    #     msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
 
-    - name: Read private key file
-      slurp:
-        src: "{{ private_key_path }}"
-      register: private_key_content
-      when: ec2_key.changed
+    # - name: Read private key file
+    #   slurp:
+    #     src: "{{ private_key_path }}"
+    #   register: private_key_content
+    #   when: ec2_key.changed
 
-    - name: Convert private key to string
-      set_fact:
-        private_key_string: "{{ private_key_content.content | b64decode }}"
-      when: ec2_key.changed
+    # - name: Convert private key to string
+    #   set_fact:
+    #     private_key_string: "{{ private_key_content.content | b64decode }}"
+    #   when: ec2_key.changed
     ## Removed the API call to create credential in AAP, as we will be using the collection for that. Keeping it here for reference.
     # - name: Create AWS EC2 SSH Key Credential in AAP
     #   when: ec2_key.changed
@@ -74,9 +74,9 @@
     #   register: result
     #   ignore_errors: yes
 
-    - name: Just for debugging - and testing
-      ansible.builtin.debug:
-        var: private_key_string
+    # - name: Just for debugging - and testing
+    #   ansible.builtin.debug:
+    #     var: private_key_string
 
 - name: Attach credential declaratively using aap API and Collection for automation
   hosts: localhost
@@ -100,7 +100,7 @@
         credential_type: "Machine"
         inputs:
           username: ec2-user
-          ssh_key_data: "{{ private_key_string }}"
+          ssh_key_data: "{{ ec2_key.key.private_key | default('') }}"
 
     controller_templates:
       - name: CIS_Reporting
