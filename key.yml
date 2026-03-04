@@ -119,7 +119,12 @@
         organization: Default
         inventory: aws
         credentials:
-          - "AWS EC2 SSH Key" 
+          - "AWS EC2 SSH Key"
+  pre_tasks:
+    - name: Debug - Check if private key file exists
+      ansible.builtin.debug:
+        msg: "Private key file exists at {{ private_key_path }}"
+      failed_when: not lookup('file', private_key_path, errors='ignore')          
   roles:
     - {role: infra.aap_configuration.controller_credentials, when: controller_credentials is defined}
     - infra.aap_configuration.controller_job_templates
