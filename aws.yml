@@ -90,4 +90,8 @@
     - name: Set a variable to be used in a subsequent workflow job
       ansible.builtin.set_stats:
         data:
-          ec2_data: "{{ ec2.instances[0].instance_id }}"      
+          ec2_data: "{{ ec2.instances[0].instance_id }}" 
+
+    - name: add pause to allow instance to initialize before next workflow job
+      ansible.builtin.pause:
+        minutes: 1           
