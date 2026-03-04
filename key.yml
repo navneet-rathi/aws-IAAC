@@ -42,11 +42,11 @@
 
     - name: Read private key file
       slurp:
-        src: "{{ private_key_path }}"
+        src: "{{ private_key_path.content | b64decode }}"
       register: private_key_content
       when: ec2_key.changed
 
-    - name: Convert private key to string
+    - name: Convert private key to string | This is needed for the API call to create credential in AAP
       set_fact:
         private_key_string: "{{ private_key_content.content | b64decode }}"
       when: ec2_key.changed
