@@ -13,7 +13,7 @@
     controller_password: "primod123"
     organization_id: 1                # ID of your org (use API/UI to confirm)
   tasks:
-    - name: Create key pair in AWS
+    - name: Remove key pair in AWS
       amazon.aws.ec2_key:
         name: "{{ key_name }}"
         region: "{{ region }}"
