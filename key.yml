@@ -40,16 +40,16 @@
       ansible.builtin.debug:
         msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
 
-    # - name: Read private key file
-    #   slurp:
-    #     src: "{{ private_key_path }}"
-    #   register: private_key_content
-    #   when: ec2_key.changed
+    - name: Read private key file
+      slurp:
+        src: "{{ private_key_path }}"
+      register: private_key_content
+      when: ec2_key.changed
 
-    # - name: Convert private key to string
-    #   set_fact:
-    #     private_key_string: "{{ private_key_content.content | b64decode }}"
-    #   when: ec2_key.changed
+    - name: Convert private key to string
+      set_fact:
+        private_key_string: "{{ private_key_content.content | b64decode }}"
+      when: ec2_key.changed
     ## Removed the API call to create credential in AAP, as we will be using the collection for that. Keeping it here for reference.
     # - name: Create AWS EC2 SSH Key Credential in AAP
     #   when: ec2_key.changed
