@@ -29,16 +29,16 @@
         state: present
       register: ec2_key
 
-    # - name: Save private key locally
-    #   ansible.builtin.copy:
-    #     content: "{{ ec2_key.key.private_key }}"
-    #     dest: "{{ private_key_path }}"
-    #     mode: '0600'
-    #   when: ec2_key.changed
+    - name: Save private key locally
+      ansible.builtin.copy:
+        content: "{{ ec2_key.key.private_key }}"
+        dest: "{{ private_key_path }}"
+        mode: '0600'
+      when: ec2_key.changed
 
-    # - name: Debug public key
-    #   ansible.builtin.debug:
-    #     msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
+    - name: Debug public key
+      ansible.builtin.debug:
+        msg: "Public key registered in AWS: {{ ec2_key.key.name }}"
 
     # - name: Read private key file
     #   slurp:
@@ -83,7 +83,6 @@
   gather_facts: false
   collections:
     - infra.aap_configuration
-
   vars:
     #controller_hostname: "https://192.168.64.63"
     #controller_oauthtoken: "{{ token }}"
@@ -92,6 +91,7 @@
     aap_password: "primod123"
     aap_token: "h18YfbliJRcOpEVEt1GsnhfThvB6Io"
     aap_validate_certs: false
+    private_key_path: /tmp/aap-ec2-key.pem
     #controller_validate_certs: false
     controller_credentials:
       - name: AWS EC2 SSH Key
@@ -100,7 +100,7 @@
         credential_type: "Machine"
         inputs:
           username: ec2-user
-          ssh_key_data: "{{ ec2_key.key.private_key | default('') }}"
+          ssh_key_data: "{{ lookup('file', private_key_path) }}"
 
     controller_templates:
       - name: CIS_Reporting
