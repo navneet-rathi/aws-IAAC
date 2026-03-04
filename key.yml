@@ -105,16 +105,19 @@
     controller_templates:
       - name: CIS_Reporting
         organization: Default
+        inventory: aws
         credentials:
           - "AWS EC2 SSH Key"
 
       - name: CIS
         organization: Default
+        inventory: aws
         credentials:
           - "AWS EC2 SSH Key" 
 
       - name: AWS_Infra_Hardning   
         organization: Default
+        inventory: aws
         credentials:
           - "AWS EC2 SSH Key" 
   roles:
