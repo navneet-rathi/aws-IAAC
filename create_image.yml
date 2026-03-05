@@ -4,6 +4,7 @@
   gather_facts: false
   vars:
     tag_project: "RHEL_ec2_image_21_02"
+    date: "{{ lookup('pipe', 'date +%Y-%m-%d-%H-%M-%S') }}"
     region: "ap-south-1"
     instance_id: "{{ec2_data }}"
   tasks:
