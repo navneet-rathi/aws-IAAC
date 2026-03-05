@@ -8,6 +8,10 @@
     region: "ap-south-1"
     instance_id: "{{ec2_data }}"
   tasks:
+    - name: Debug instance ID
+      debug:
+        msg: "{{ date }}"
+        
     - name: Create an AMI from the EC2 instance
       amazon.aws.ec2_ami:
         instance_id: "{{ instance_id }}"
