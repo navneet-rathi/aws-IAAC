@@ -42,7 +42,7 @@
 
     - name: Read private key file
       slurp:
-        src: "{{ private_key_path.content | b64decode }}"
+        src: "{{ private_key_path }}"
       register: private_key_content
       when: ec2_key.changed
 
