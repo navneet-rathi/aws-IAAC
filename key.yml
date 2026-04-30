@@ -120,6 +120,12 @@
         inventory: aws
         credentials:
           - "AWS EC2 SSH Key"
+
+      - name: CIS_Openscaf   
+        organization: Default
+        inventory: aws
+        credentials:
+          - "AWS EC2 SSH Key"    
   pre_tasks:
     - name: Debug - Check if private key file exists
       ansible.builtin.debug:
