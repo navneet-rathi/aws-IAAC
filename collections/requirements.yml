@@ -2,7 +2,7 @@
 collections:
   #- name: amazon.aws
   - name: infra.aap_configuration
-#    source: infra-aap_configuration-3.3.0.tar.gz
-#    type: file
+    source: infra-aap_configuration-3.3.0.tar.gz
+    type: file
     #source: git+https://github.com/redhat-cop/infra.aap_configuration.git
     #type: git
