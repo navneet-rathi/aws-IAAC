@@ -102,6 +102,11 @@
           username: ec2-user
           ssh_key_data: "{{ lookup('file', private_key_path) }}"
 
+      - name: aws-programatic-access
+        description: AWS programatic access key
+        organization: Default
+
+
     controller_templates:
       - name: CIS_Reporting
         organization: Default
@@ -126,6 +131,12 @@
         inventory: aws
         credentials:
           - "AWS EC2 SSH Key"    
+
+      - name: AWS | create Infra and Instance
+        organization: Default
+        inventory: Demo Inventory
+        credentials:
+          - "aws-programatic-access"    
   pre_tasks:
     - name: Debug - Check if private key file exists
       ansible.builtin.debug:
