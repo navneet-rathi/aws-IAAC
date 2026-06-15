@@ -102,9 +102,9 @@
           username: ec2-user
           ssh_key_data: "{{ lookup('file', private_key_path) }}"
 
-      - name: aws-programatic-access
-        description: AWS programatic access key
-        organization: Default
+      # - name: aws-programatic-access
+      #   description: AWS programatic access key
+      #   organization: Default
 
 
     controller_templates:
