@@ -93,7 +93,7 @@
 
     - name: Launch EC2 instance
       amazon.aws.ec2_instance:
-        name: "{{ tag_project }}-ec2"
+        name: "{{ tag_project }}-win-ec2"
         key_name: "{{ keypair_name }}"
         instance_type: "{{ ec2_instance_type }}"
         image_id: "{{ ami_id }}"
