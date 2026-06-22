@@ -15,6 +15,14 @@
     private_key_path: /tmp/aap-ec2-win-key.pem
 
   tasks:
+#     - name: Create key pair in AWS
+#       amazon.aws.ec2_key:
+#         name: "{{ keypair_name }}"
+#         region: "{{ region }}"
+# #        key_material: "{{ lookup('file', 'id_rsa.pub') }}"
+#         state: absent
+#       register: ec2_key
+
     - name: Create key pair in AWS
       amazon.aws.ec2_key:
         name: "{{ keypair_name }}"
