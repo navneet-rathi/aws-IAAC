@@ -137,7 +137,7 @@
   collections:
     - infra.aap_configuration
   vars:
-    private_key_path: /tmp/aap-ec2-win-key.pem
+    #private_key_path: /tmp/aap-ec2-win-key.pem
     #controller_validate_certs: false
     controller_credentials:
       - name: AWS EC2 Windows Password
