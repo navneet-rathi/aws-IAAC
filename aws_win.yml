@@ -10,24 +10,17 @@
     subnet_cidr: "10.0.1.0/24"
     keypair_name: aap-ec2-win-key
     ec2_instance_type: t3.medium           #t3.micro
-    ami_id: ami-0cd556a55b5bf3cf3 # Replace with valid AMI in your region
+    ami_id: ami-09a18c33dcd13da6c # Replace with valid AMI in your region
     tag_project: "AWX-Black-Env"
     private_key_path: /tmp/aap-ec2-win-key.pem
 
   tasks:
-#     - name: Create key pair in AWS
-#       amazon.aws.ec2_key:
-#         name: "{{ keypair_name }}"
-#         region: "{{ region }}"
-# #        key_material: "{{ lookup('file', 'id_rsa.pub') }}"
-#         state: absent
-#       register: ec2_key
+
 
     - name: Create key pair in AWS
       amazon.aws.ec2_key:
         name: "{{ keypair_name }}"
         region: "{{ region }}"
-#        key_material: "{{ lookup('file', 'id_rsa.pub') }}"
         state: present
       register: ec2_key
 
@@ -119,23 +112,13 @@
           Project: "{{ tag_project }}"
       register: ec2
 
-    - name: Set a variable to be used in a subsequent workflow job
-      ansible.builtin.set_stats:
-        data:
-          ec2_data: "{{ ec2.instances[0].instance_id }}" 
-         # instance_id: "{{ ec2.instances[0].instance_id }}"
-          public_ip: "{{ ec2.instances[0].public_ip_address }}"
-
     - name: add pause to allow instance to initialize before next workflow job
       ansible.builtin.pause:
         minutes: 3           
-    # - name: Wait for the instance to complete booting
-    #   ansible.builtin.pause:
-    #     minutes: 3
 
     - name: Retrieve and decrypt the Administrator password
       community.aws.ec2_win_password:
-        instance_id: "{{ ec2_data }}"
+        instance_id: "{{ ec2.instances[0].instance_id }}" 
         region: "{{ region }}"
         key_file: "{{ private_key_path }}"
         wait: true
@@ -144,8 +127,10 @@
     - name: Set a variable to be used in a subsequent workflow job
       ansible.builtin.set_stats:
         data:
-         # ec2_data: "{{ ec2.instances[0].instance_id }}" 
           aws_password: "{{ aws_password_result.win_password }}"
+          ec2_data: "{{ ec2.instances[0].instance_id }}" 
+          public_ip: "{{ ec2.instances[0].public_ip_address }}"
+
 - name: Attach credential declaratively using aap API and Collection for automation
   hosts: localhost
   gather_facts: false
@@ -161,7 +146,7 @@
         credential_type: "Machine"
         inputs:
           username: Administrator
-          password: "aws_password"
+          password: "{{ aws_password }}"
           
   roles:
     - {role: infra.aap_configuration.controller_credentials, when: controller_credentials is defined}
