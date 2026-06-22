@@ -152,13 +152,6 @@
   collections:
     - infra.aap_configuration
   vars:
-    #controller_hostname: "https://192.168.64.63"
-    #controller_oauthtoken: "{{ token }}"
-    # aap_hostname: "https://192.168.64.63"
-    # aap_username: "admin"
-    # aap_password: "primod123"
-    # aap_token: "h18YfbliJRcOpEVEt1GsnhfThvB6Io"
-    # aap_validate_certs: false
     private_key_path: /tmp/aap-ec2-win-key.pem
     #controller_validate_certs: false
     controller_credentials:
