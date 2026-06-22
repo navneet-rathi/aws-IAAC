@@ -155,6 +155,9 @@
         inputs:
           username: Administrator
           password: "{{ hostvars['localhost']['shared_aws_password'] }}"
+          become_method: "runas"
+          become_username: Administrator
+          become_password: "{{ hostvars['localhost']['shared_aws_password'] }}"
           
   roles:
     - {role: infra.aap_configuration.controller_credentials}
