@@ -124,6 +124,11 @@
         wait: true
       register: aws_password_result
 
+    - name: Share password with the next play in this file
+      ansible.builtin.set_fact:
+        shared_aws_password: "{{ aws_password_result.win_password }}"
+        cacheable: true
+
     - name: Set a variable to be used in a subsequent workflow job
       ansible.builtin.set_stats:
         data:
@@ -146,7 +151,7 @@
         credential_type: "Machine"
         inputs:
           username: Administrator
-          password: "{{ aws_password }}"
+          password: "{{ hostvars['localhost']['shared_aws_password'] }}"
           
   roles:
     - {role: infra.aap_configuration.controller_credentials}
