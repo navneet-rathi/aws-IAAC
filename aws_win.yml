@@ -8,12 +8,28 @@
     region: ap-south-1
     vpc_cidr: "10.0.0.0/16"
     subnet_cidr: "10.0.1.0/24"
-    keypair_name: aap-ec2-key
+    keypair_name: aap-ec2-win-key
     ec2_instance_type: t3.medium           #t3.micro
     ami_id: ami-0cd556a55b5bf3cf3 # Replace with valid AMI in your region
     tag_project: "AWX-Black-Env"
+    private_key_path: /tmp/aap-ec2-win-key.pem
 
   tasks:
+    - name: Create key pair in AWS
+      amazon.aws.ec2_key:
+        name: "{{ keypair_name }}"
+        region: "{{ region }}"
+#        key_material: "{{ lookup('file', 'id_rsa.pub') }}"
+        state: present
+      register: ec2_key
+
+    - name: Save private key locally
+      ansible.builtin.copy:
+        content: "{{ ec2_key.key.private_key }}"
+        dest: "{{ private_key_path }}"
+        mode: '0600'
+      when: ec2_key.changed
+
     - name: Create VPC
       amazon.aws.ec2_vpc_net:
         name: "{{ tag_project }}-vpc"
@@ -116,3 +132,35 @@
         key_file: "{{ private_key_path }}"
         wait: true
       register: aws_password_result
+
+    - name: Set a variable to be used in a subsequent workflow job
+      ansible.builtin.set_stats:
+        data:
+          ec2_data: "{{ ec2.instances[0].instance_id }}" 
+          aws_password: "{{ aws_password_result.win_password }}"
+- name: Attach credential declaratively using aap API and Collection for automation
+  hosts: localhost
+  gather_facts: false
+  collections:
+    - infra.aap_configuration
+  vars:
+    #controller_hostname: "https://192.168.64.63"
+    #controller_oauthtoken: "{{ token }}"
+    # aap_hostname: "https://192.168.64.63"
+    # aap_username: "admin"
+    # aap_password: "primod123"
+    # aap_token: "h18YfbliJRcOpEVEt1GsnhfThvB6Io"
+    # aap_validate_certs: false
+    private_key_path: /tmp/aap-ec2-win-key.pem
+    #controller_validate_certs: false
+    controller_credentials:
+      - name: AWS EC2 Windows Password
+        description: Credentials for AWS EC2 Windows Password
+        organization: Default
+        credential_type: "Machine"
+        inputs:
+          username: Administrator
+          password: "aws_password"
+          
+  roles:
+    - {role: infra.aap_configuration.controller_credentials, when: controller_credentials is defined}
