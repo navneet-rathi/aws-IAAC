@@ -6,7 +6,7 @@ Language(s): YAML (Ansible playbooks)
 Framework / runtime: Ansible playbooks (uses Ansible collections rather than an app framework)
 Notable libraries / collections: amazon.aws (AWS modules: ec2_vpc_net, ec2_instance, ec2_ami, ec2_key, etc.), infra.aap_configuration (infra.aap_configuration-3.3.0 tarball present), ansible.builtin modules (copy, lineinfile, pause, set_stats)
 How it's organized
-Code
+# Code
 README.md                     short repo description
 ansible.cfg                   Ansible configuration
 aws.yml                       Playbook: provision VPC, subnet, IGW, route table, SG, launch EC2
@@ -20,24 +20,25 @@ collections/requirements.yml  Ansible collections requirements (references local
 infra-aap_configuration-3.3.0.tar.gz  Bundled collection file (infra.aap_configuration)
 id_rsa, id_rsa.pub            Private/public key files committed in repo (sensitive)
 .DS_Store, .vscode/           editor/OS artifacts
-How it fits together:
+
+## How it fits together:
 
 aws.yml is the main provisioning playbook that creates network resources and an EC2 instance and then sets ec2_data (instance id) via ansible.builtin.set_stats. create_image.yml expects that instance id (it references ec2_data) to create an AMI. key.yml and key_copy.yml handle EC2 keypair creation and/or registering SSH credentials and Job Templates on an Ansible Automation Platform controller via the infra.aap_configuration collection or direct API calls. hardning.yml is a configuration playbook to apply CIS/RHEL SSH/password policies on hosts.
 How to run it
 Install required collections (requirements reference a local tarball):
 From the repository root:
-Code
+# Code
 ansible-galaxy collection install -r collections/requirements.yml
 (the requirements.yml references the bundled infra-aap_configuration-3.3.0.tar.gz)
 Provide AWS credentials and any controller credentials as environment variables:
 Example:
-Code
+# Code
 export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
 export AWS_DEFAULT_REGION=ap-south-1
 The playbooks also use variables like ami_id, keypair_name, and private_key_path (see key.yml).
 Run provisioning / tasks:
-Code
+# Code
 ansible-playbook aws.yml
 ansible-playbook create_image.yml       # expects ec2_data (instance id) to be available/supplied
 ansible-playbook key.yml
